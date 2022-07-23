@@ -48,7 +48,7 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::${aws_organizations_account.prod.id}:role/${local.aws_org_role}"
-    session_name = "terraform-${var.project_name}-infrastructure"
+    session_name = "terraform-${var.application}-infrastructure"
   }
 }
 
@@ -61,6 +61,6 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::${aws_organizations_account.dev.id}:role/${local.aws_org_role}"
-    session_name = "terraform-${var.project_name}-infrastructure"
+    session_name = "terraform-${var.application}-infrastructure"
   }
 }
