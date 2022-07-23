@@ -142,7 +142,7 @@ resource "aws_dynamodb_table" "remotestate_lock" {
 resource "aws_iam_role" "remotestate" {
   for_each = var.environments
 
-  name               = "TerraformRemotestate${title(each.key)}"
+  name               = "LittleurlTerraformRemotestate${title(each.key)}"
   assume_role_policy = data.aws_iam_policy_document.remotestate_assume[each.key].json
 
   tags = {
@@ -191,15 +191,15 @@ data "aws_iam_policy_document" "remotestate_access" {
       "dynamodb:DeleteItem"
     ]
 
-    condition {
-      test     = "ForAllValues:StringEquals"
-      variable = "dynamodb:LeadingKeys"
-      values = [
-        "${aws_s3_bucket.remotestate.id}/state/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfstate",
-        "${aws_s3_bucket.remotestate.id}/state/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfstate-md5",
-        "${aws_s3_bucket.remotestate.id}/plan/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfplan"
-      ]
-    }
+    # condition {
+    #   test     = "ForAllValues:StringEquals"
+    #   variable = "dynamodb:LeadingKeys"
+    #   values = [
+    #     "${aws_s3_bucket.remotestate.id}/state/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfstate",
+    #     "${aws_s3_bucket.remotestate.id}/state/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfstate-md5",
+    #     "${aws_s3_bucket.remotestate.id}/plan/${each.key}/$${aws:PrincipalTag/service, 'INVALID_SERVICE_TAG'}.tfplan"
+    #   ]
+    # }
 
     resources = [aws_dynamodb_table.remotestate_lock.arn]
   }
