@@ -1,27 +1,23 @@
-resource "cloudflare_zone" "default" {
+module "dns_zone" {
   for_each = var.environments
-  zone     = var.domains[each.key]
+  source   = "./modules/dns-zone"
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  application = var.application
+  domain      = var.domains[each.key]
 }
 
-resource "cloudflare_zone_settings_override" "default" {
-  for_each = var.environments
-  zone_id  = cloudflare_zone.default[each.key].id
+resource "aws_ssm_parameter" "cloudflare_zone_dev" {
+  provider = aws.dev
 
-  settings {
-    ssl                      = "strict"
-    tls_1_3                  = "on"
-    min_tls_version          = "1.2"
-    always_use_https         = "on"
-    automatic_https_rewrites = "on"
-  }
+  name  = "/${var.application}/cloudflare-zone"
+  type  = "String"
+  value = module.dns_zone["dev"].zone_id
 }
 
-module "dns_webmail" {
-  for_each = var.environments
-  source   = "./modules/dns-webmail"
-  zone_id  = cloudflare_zone.default[each.key].id
+resource "aws_ssm_parameter" "cloudflare_zone_prod" {
+  provider = aws.prod
+
+  name  = "/${var.application}/cloudflare-zone"
+  type  = "String"
+  value = module.dns_zone["prod"].zone_id
 }
